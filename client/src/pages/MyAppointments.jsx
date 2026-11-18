@@ -1,13 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../context/AppContext'
 import { MapPin, Calendar } from 'lucide-react'
 import { toast } from 'react-toastify'
 import axios from 'axios'
+import PaymentModal from '../components/PaymentModal'
 
 const MyAppointments = () => {
-  const { backendUrl, token } = useContext(AppContext)
+  const { backendUrl, token, getDoctorsData } = useContext(AppContext)
 
   const [appointments, setAppointments] = useState([])
+  const [selectedAppointment, setSelectedAppointment] = useState(null)
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -22,8 +24,25 @@ const MyAppointments = () => {
       const { data } = await axios.get(backendUrl + '/api/user/appointments', { headers: { token } })
 
       if (data.success) {
-        
         setAppointments(data.appointments)
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error(error.message)
+    }
+  }
+
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(backendUrl + '/api/user/cancel-appointment',{appointmentId},{headers:{token}}
+      )
+
+      if (data.success) {
+        toast.success(data.message)
+        getUserAppointments()   // list refresh (cancelled status dekhabe)
+        getDoctorsData()        // doctor er slot free hoyeche, tai doctors o refresh
       } else {
         toast.error(data.message)
       }
@@ -82,17 +101,41 @@ const MyAppointments = () => {
               </div>
 
               <div className='flex sm:flex-col gap-2 shrink-0'>
-                <button className='flex-1 sm:w-40 text-sm font-medium border border-gray-200 text-gray-600 py-2.5 rounded-lg hover:bg-primary/80 cursor-pointer hover:text-white hover:border-primary transition-colors duration-300'>
-                  Pay online
-                </button>
-                <button className='flex-1 sm:w-40 text-sm font-medium border border-gray-200 text-gray-600 py-2.5 rounded-lg hover:bg-red-400 hover:text-white hover:border-red-500 transition-colors duration-300 cursor-pointer'>
-                  Cancel
-                </button>
+                {item.cancelled ? (
+                  <p className='flex-1 sm:w-40 text-center text-sm font-medium border border-red-200 bg-red-50 text-red-500 py-2.5 rounded-lg'>
+                    Appointment cancelled
+                  </p>
+                ) : item.payment ? (
+                  <p className='flex-1 sm:w-40 text-center text-sm font-medium border border-emerald-200 bg-emerald-50 text-emerald-600 py-2.5 rounded-lg'>
+                    Paid
+                  </p>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setSelectedAppointment(item)}
+                      className='flex-1 sm:w-40 text-sm font-medium border border-gray-200 text-gray-600 py-2.5 rounded-lg hover:bg-primary/80 cursor-pointer hover:text-white hover:border-primary transition-colors duration-300'
+                    >
+                      Pay online
+                    </button>
+                    <button
+                      onClick={() => cancelAppointment(item._id)}
+                      className='flex-1 sm:w-40 text-sm font-medium border border-gray-200 text-gray-600 py-2.5 rounded-lg hover:bg-red-400 hover:text-white hover:border-red-500 transition-colors duration-300 cursor-pointer'
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      <PaymentModal
+        appointment={selectedAppointment}
+        onClose={() => setSelectedAppointment(null)}
+        onPaid={getUserAppointments}
+      />
     </div>
   )
 }

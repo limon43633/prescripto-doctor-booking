@@ -4,6 +4,7 @@ import { v2 as cloudinary } from 'cloudinary'
 import doctorModel from '../models/doctorModel.js'
 import jwt from 'jsonwebtoken'
 import appointmentModel from '../models/appointmentModel.js'
+import userModel from '../models/userModel.js'
 
 
 
@@ -162,4 +163,28 @@ const appointmentCancel = async (req, res) => {
     }
 }
 
-export {addDoctor,loginAdmin,allDoctors,appointmentsAdmin,appointmentCancel}
+// API to get dashboard data for admin panel
+const adminDashboard = async (req, res) => {
+    try {
+        const [doctors, appointments, patients, latestAppointments] = await Promise.all([
+            doctorModel.countDocuments(),
+            appointmentModel.countDocuments(),
+            userModel.countDocuments(),
+            appointmentModel.find({}).sort({ date: -1 }).limit(5)
+        ])
+
+        const dashData = {
+            doctors,
+            appointments,
+            patients,
+            latestAppointments
+        }
+
+        res.json({ success: true, dashData })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+export { addDoctor, loginAdmin, allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard }

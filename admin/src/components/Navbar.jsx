@@ -8,10 +8,17 @@ import { IconMenu, IconChevronDown, IconLogout } from './ui/Icons'
 
 const routeTitles = {
   '/': 'Overview',
+
+  // Admin Routes
   '/admin-dashboard': 'Dashboard',
   '/all-appointments': 'All Appointments',
   '/add-doctor': 'Add Doctor',
   '/doctor-list': 'Doctors List',
+
+  // Doctor Routes
+  '/doctor-dashboard': 'Dashboard',
+  '/doctor-appointments': 'Appointments',
+  '/doctor-profile': 'Profile',
 }
 
 const Navbar = ({ onMenuClick, isMenuOpen }) => {

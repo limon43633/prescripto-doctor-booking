@@ -1,4 +1,3 @@
-
 import { useContext, useState, useEffect, useRef } from 'react'
 import { AdminContext } from '../context/AdminContext'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
@@ -328,6 +327,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                       )}
                     </NavLink>
                   </li>
+
                 )
               })}
             </ul>

@@ -116,6 +116,50 @@ const appointmentsAdmin = async (req,res) => {
     }
 }
 
+// API to cancel appointment by admin
+const appointmentCancel = async (req, res) => {
+    try {
+        const { appointmentId } = req.body
 
+        const appointmentData = await appointmentModel.findById(appointmentId)
 
-export {addDoctor,loginAdmin,allDoctors,appointmentsAdmin}
+        if (!appointmentData) {
+            return res.json({ success: false, message: 'Appointment not found' })
+        }
+
+        if (appointmentData.cancelled) {
+            return res.json({ success: false, message: 'Appointment already cancelled' })
+        }
+
+        if (appointmentData.isCompleted) {
+            return res.json({ success: false, message: 'Completed appointments cannot be cancelled' })
+        }
+
+        if (appointmentData.payment === true) {
+            return res.json({ success: false, message: 'This appointment is already paid. Refunds are not supported in this demo, so it cannot be cancelled.' })
+        }
+
+        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
+
+        // releasing doctor slot
+        const { docId, slotDate, slotTime } = appointmentData
+
+        const doctorData = await doctorModel.findById(docId)
+
+        if (doctorData) {
+            let slots_booked = doctorData.slots_booked || {}
+
+            if (slots_booked[slotDate]) {
+                slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
+                await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+            }
+        }
+
+        return res.json({ success: true, message: 'Appointment cancelled' })
+    } catch (error) {
+        console.log(error)
+        return res.json({ success: false, message: error.message })
+    }
+}
+
+export {addDoctor,loginAdmin,allDoctors,appointmentsAdmin,appointmentCancel}

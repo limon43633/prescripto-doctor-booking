@@ -1,7 +1,9 @@
+
 import { useContext, useState, useEffect, useRef } from 'react'
 import { AdminContext } from '../context/AdminContext'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { assets } from '../assets/assets'
+import { DoctorContext } from '../context/DoctorContext'
 import {
   IconDashboard,
   IconCalendarCheck,
@@ -19,8 +21,18 @@ const navItems = [
   { to: '/doctor-list', label: 'Doctors List', icon: IconUsers },
 ]
 
+const doctorNavItems = [
+  { to: '/doctor-dashboard', label: 'Dashboard', icon: IconDashboard },
+  { to: '/doctor-appointments', label: 'Appointments', icon: IconCalendarCheck },
+  { to: '/doctor-profile', label: 'Profile', icon: IconUsers },
+]
+
 const Sidebar = ({ isOpen, onClose }) => {
   const { aToken } = useContext(AdminContext)
+  const { dToken } = useContext(DoctorContext)
+
+  const currentNavItems = aToken ? navItems : doctorNavItems
+
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -50,6 +62,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     const handleResize = () => {
       setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024)
     }
+
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
@@ -93,7 +106,9 @@ const Sidebar = ({ isOpen, onClose }) => {
         const focusable = drawerRef.current.querySelectorAll(
           'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
         )
+
         if (focusable.length === 0) return
+
         const first = focusable[0]
         const last = focusable[focusable.length - 1]
 
@@ -115,7 +130,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     }
   }, [isOpen, onClose])
 
-  if (!aToken) return null
+  if (!aToken && !dToken) return null
 
   // Rail mode is active on tablet by default, or when user collapses on desktop
   const isRail = isTablet || isCollapsed
@@ -125,6 +140,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       {/* ------------------------------------------------------------- */}
       {/* 1) DESKTOP & TABLET PERSISTENT SIDEBAR                        */}
       {/* ------------------------------------------------------------- */}
+
       <aside
         className={`hidden md:flex flex-col shrink-0 bg-white border-r border-[#EAECF0] h-full select-none transition-all duration-200 z-20 ${
           isRail ? 'w-20' : 'w-[264px]'
@@ -141,6 +157,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 src={assets.admin_logo}
                 alt="Prescripto"
               />
+
               <button
                 type="button"
                 onClick={toggleCollapse}
@@ -173,8 +190,9 @@ const Sidebar = ({ isOpen, onClose }) => {
           )}
 
           <ul className="flex flex-col gap-1">
-            {navItems.map((item) => {
+            {currentNavItems.map((item) => {
               const Icon = item.icon
+
               return (
                 <li key={item.to} className="relative group">
                   <NavLink
@@ -195,10 +213,15 @@ const Sidebar = ({ isOpen, onClose }) => {
                       <>
                         <Icon
                           className={`w-5 h-5 shrink-0 ${
-                            isActive ? 'text-[#5F6FFF]' : 'text-[#667085] group-hover:text-[#101828]'
+                            isActive
+                              ? 'text-[#5F6FFF]'
+                              : 'text-[#667085] group-hover:text-[#101828]'
                           }`}
                         />
-                        {!isRail && <span className="truncate">{item.label}</span>}
+
+                        {!isRail && (
+                          <span className="truncate">{item.label}</span>
+                        )}
                       </>
                     )}
                   </NavLink>
@@ -222,6 +245,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       {/* ------------------------------------------------------------- */}
       {/* 2) MOBILE OFF-CANVAS DRAWER (< 768px)                         */}
       {/* ------------------------------------------------------------- */}
+
       <div
         className={`fixed inset-0 z-50 md:hidden transition-visibility duration-200 ${
           isOpen ? 'visible' : 'invisible pointer-events-none'
@@ -249,7 +273,12 @@ const Sidebar = ({ isOpen, onClose }) => {
         >
           {/* Drawer Top Header */}
           <div className="h-16 px-5 border-b border-[#EAECF0] flex items-center justify-between shrink-0">
-            <img src={assets.admin_logo} alt="Prescripto" className="h-7 w-auto object-contain" />
+            <img
+              src={assets.admin_logo}
+              alt="Prescripto"
+              className="h-7 w-auto object-contain"
+            />
+
             <button
               ref={closeBtnRef}
               type="button"
@@ -266,9 +295,11 @@ const Sidebar = ({ isOpen, onClose }) => {
             <p className="px-3 mb-2 text-[13px] font-medium text-[#667085]">
               Menu
             </p>
+
             <ul className="flex flex-col gap-1">
-              {navItems.map((item) => {
+              {currentNavItems.map((item) => {
                 const Icon = item.icon
+
                 return (
                   <li key={item.to}>
                     <NavLink
@@ -286,9 +317,12 @@ const Sidebar = ({ isOpen, onClose }) => {
                         <>
                           <Icon
                             className={`w-5 h-5 shrink-0 ${
-                              isActive ? 'text-[#5F6FFF]' : 'text-[#667085]'
+                              isActive
+                                ? 'text-[#5F6FFF]'
+                                : 'text-[#667085]'
                             }`}
                           />
+
                           <span className="truncate">{item.label}</span>
                         </>
                       )}

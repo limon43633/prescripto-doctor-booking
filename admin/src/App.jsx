@@ -9,9 +9,14 @@ import Dashboard from './pages/Admin/Dashboard'
 import AllAppointments from './pages/Admin/AllAppointments'
 import AddDoctor from './pages/Admin/AddDoctor'
 import DoctorsList from './pages/Admin/DoctorsList'
+import { DoctorContext } from './context/DoctorContext'
+import DoctorDashboard from './pages/Doctor/DoctorDashboard'
+import DoctorAppointments from './pages/Doctor/DoctorAppointments'
+import DoctorProfile from './pages/Doctor/DoctorProfile'
 
 const App = () => {
   const { aToken } = useContext(AdminContext)
+  const { dToken } = useContext(DoctorContext)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const mainRef = useRef(null)
   const location = useLocation()
@@ -21,7 +26,7 @@ const App = () => {
     mainRef.current?.scrollTo({ top: 0, behavior: 'instant' })
   }, [location.pathname])
 
-  if (!aToken) {
+  if (!aToken && !dToken) {
     return (
       <>
         <Login />
@@ -64,11 +69,22 @@ const App = () => {
         >
           <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
             <Routes>
+
+              {/* Admin Routes*/}
+
               <Route path="/" element={<></>} />
               <Route path="/admin-dashboard" element={<Dashboard />} />
               <Route path="/all-appointments" element={<AllAppointments />} />
               <Route path="/add-doctor" element={<AddDoctor />} />
               <Route path="/doctor-list" element={<DoctorsList />} />
+
+              {/* Doctor Routes*/}
+
+              <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+              <Route path="/doctor-appointments" element={<DoctorAppointments/>} />
+              <Route path="/doctor-profile" element={<DoctorProfile/>} />
+
+
             </Routes>
           </div>
         </main>

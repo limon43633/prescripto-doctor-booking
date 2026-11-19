@@ -1,6 +1,8 @@
+
 import { useContext, useState, useRef, useEffect } from 'react'
 import { assets } from '../assets/assets'
 import { AdminContext } from '../context/AdminContext'
+import { DoctorContext } from '../context/DoctorContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { IconMenu, IconChevronDown, IconLogout } from './ui/Icons'
 
@@ -14,22 +16,30 @@ const routeTitles = {
 
 const Navbar = ({ onMenuClick, isMenuOpen }) => {
   const { aToken, setAToken } = useContext(AdminContext)
+  const { dToken, setDToken } = useContext(DoctorContext)
+
   const navigate = useNavigate()
   const location = useLocation()
 
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
-  const currentPageTitle = routeTitles[location.pathname] || 'Dashboard'
-  const roleText = aToken ? 'Admin' : 'Doctor'
-  const initial = roleText[0] || 'A'
+  // Identify logged-in user
+  const roleText = aToken ? 'Admin' : dToken ? 'Doctor' : 'User'
+  const initial = roleText[0]
 
+  const currentPageTitle = routeTitles[location.pathname] || 'Dashboard'
+
+  // Logout handler
   const logout = () => {
+    setAToken('')
+    setDToken('')
+
+    localStorage.removeItem('aToken')
+    localStorage.removeItem('dToken')
+
+    setMenuOpen(false)
     navigate('/')
-    if (aToken) {
-      setAToken('')
-      localStorage.removeItem('aToken')
-    }
   }
 
   // Close dropdown on click outside or ESC
@@ -59,8 +69,10 @@ const Navbar = ({ onMenuClick, isMenuOpen }) => {
 
   return (
     <header className="h-16 md:h-[72px] shrink-0 bg-white border-b border-[#EAECF0] px-4 sm:px-6 lg:px-8 flex items-center justify-between z-20 transition-colors">
+
       {/* Left: Mobile hamburger + logo / Desktop breadcrumb */}
       <div className="flex items-center gap-3">
+
         {/* Mobile Hamburger & Logo */}
         <div className="flex md:hidden items-center gap-2.5">
           <button
@@ -72,6 +84,7 @@ const Navbar = ({ onMenuClick, isMenuOpen }) => {
           >
             <IconMenu className="w-5 h-5" />
           </button>
+
           <img
             onClick={() => navigate('/')}
             className="h-7 w-auto object-contain cursor-pointer"
@@ -82,13 +95,21 @@ const Navbar = ({ onMenuClick, isMenuOpen }) => {
 
         {/* Desktop & Tablet Breadcrumb */}
         <nav aria-label="Breadcrumb" className="hidden md:flex items-center gap-2 text-[14px]">
-          <span className="text-[#667085] hover:text-[#344054] transition-colors">Admin</span>
-          <span className="text-[#D0D5DD]" aria-hidden="true">/</span>
-          <span className="text-[#101828] font-medium">{currentPageTitle}</span>
+          <span className="text-white transition-colors border rounded-full px-2 py-0.5 bg-primary">
+            {roleText}
+          </span>
+
+          <span className="text-[#D0D5DD]" aria-hidden="true">
+            /
+          </span>
+
+          <span className="text-[#101828] font-medium">
+            {currentPageTitle}
+          </span>
         </nav>
       </div>
 
-      {/* Right: Accessible Avatar Button with Dropdown Menu */}
+      {/* Right: User Avatar & Dropdown */}
       <div className="relative" ref={menuRef}>
         <button
           type="button"
@@ -98,12 +119,11 @@ const Navbar = ({ onMenuClick, isMenuOpen }) => {
           aria-label={`User menu for ${roleText}`}
           className="flex items-center gap-2.5 p-1 sm:pr-2.5 rounded-full hover:bg-[#F2F4F7] transition-colors cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-[#5F6FFF]/20 select-none"
         >
-          {/* Avatar circle */}
+          {/* Avatar */}
           <div className="w-9 h-9 rounded-full bg-[#F0F2FF] text-[#5F6FFF] border border-[#5F6FFF]/20 flex items-center justify-center font-semibold text-[14px]">
             {initial}
           </div>
 
-          {/* Role text on sm+ screens */}
           <span className="hidden sm:inline-block text-[14px] font-medium text-[#344054]">
             {roleText}
           </span>
@@ -115,7 +135,7 @@ const Navbar = ({ onMenuClick, isMenuOpen }) => {
           />
         </button>
 
-        {/* Dropdown Popover */}
+        {/* Dropdown */}
         {menuOpen && (
           <div
             role="menu"
@@ -123,8 +143,13 @@ const Navbar = ({ onMenuClick, isMenuOpen }) => {
             className="absolute right-0 top-full mt-2 w-52 bg-white rounded-[12px] border border-[#EAECF0] shadow-[0_12px_32px_-8px_rgba(16,24,40,0.16)] py-1.5 z-50 animate-admin-modal"
           >
             <div className="px-3.5 py-2">
-              <p className="text-[12px] text-[#667085]">Signed in as</p>
-              <p className="text-[14px] font-medium text-[#101828] truncate">{roleText}</p>
+              <p className="text-[12px] text-[#667085]">
+                Signed in as
+              </p>
+
+              <p className="text-[14px] font-medium text-[#101828] truncate">
+                {roleText}
+              </p>
             </div>
 
             <div className="h-px bg-[#F2F4F7] my-1" />
@@ -132,10 +157,7 @@ const Navbar = ({ onMenuClick, isMenuOpen }) => {
             <button
               type="button"
               role="menuitem"
-              onClick={() => {
-                setMenuOpen(false)
-                logout()
-              }}
+              onClick={logout}
               className="w-full text-left px-3.5 py-2 text-[14px] text-[#B42318] hover:bg-[#FEF3F2] flex items-center gap-2.5 transition-colors cursor-pointer focus:outline-none focus-visible:bg-[#FEF3F2]"
             >
               <IconLogout className="w-4 h-4 text-[#B42318]" />

@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AdminContext } from '../../context/AdminContext'
 import { AppContext } from '../../context/AppContext'
-import { assets } from '../../assets/assets'
+import { Stethoscope, CalendarCheck, Users, ClipboardList } from 'lucide-react'
 import PageHeader from '../../components/ui/PageHeader'
 import Badge from '../../components/ui/Badge'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
@@ -178,7 +178,7 @@ const Dashboard = () => {
               className="bg-white rounded-[20px] border border-[#EAECF0] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-8px_rgba(16,24,40,0.06)] p-5 md:p-6 flex items-center gap-4 hover:border-[#D0D5DD] hover:bg-[#FCFCFD] transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-[#5F6FFF]/20 cursor-pointer"
             >
               <div className="w-14 h-14 rounded-xl bg-[#F4F6FB] flex items-center justify-center shrink-0">
-                <img src={assets.doctor_icon} alt="" className="w-8 h-8 object-contain" />
+                <Stethoscope className="w-7 h-7 text-[#5F6FFF]" />
               </div>
               <div className="min-w-0">
                 <p className="text-[30px] leading-[36px] font-semibold text-[#101828] tabular-nums truncate">
@@ -194,7 +194,7 @@ const Dashboard = () => {
               className="bg-white rounded-[20px] border border-[#EAECF0] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-8px_rgba(16,24,40,0.06)] p-5 md:p-6 flex items-center gap-4 hover:border-[#D0D5DD] hover:bg-[#FCFCFD] transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-[#5F6FFF]/20 cursor-pointer"
             >
               <div className="w-14 h-14 rounded-xl bg-[#F4F6FB] flex items-center justify-center shrink-0">
-                <img src={assets.appointments_icon} alt="" className="w-8 h-8 object-contain" />
+                <CalendarCheck className="w-7 h-7 text-[#5F6FFF]" />
               </div>
               <div className="min-w-0">
                 <p className="text-[30px] leading-[36px] font-semibold text-[#101828] tabular-nums truncate">
@@ -207,7 +207,7 @@ const Dashboard = () => {
             {/* Patients Card (Not a link) */}
             <div className="bg-white rounded-[20px] border border-[#EAECF0] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-8px_rgba(16,24,40,0.06)] p-5 md:p-6 flex items-center gap-4">
               <div className="w-14 h-14 rounded-xl bg-[#F4F6FB] flex items-center justify-center shrink-0">
-                <img src={assets.patients_icon} alt="" className="w-8 h-8 object-contain" />
+                <Users className="w-7 h-7 text-[#5F6FFF]" />
               </div>
               <div className="min-w-0">
                 <p className="text-[30px] leading-[36px] font-semibold text-[#101828] tabular-nums truncate">
@@ -223,7 +223,7 @@ const Dashboard = () => {
             {/* Header */}
             <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-[#F2F4F7] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <img src={assets.list_icon} alt="" className="w-5 h-5 object-contain" />
+                <ClipboardList className="w-5 h-5 text-[#5F6FFF]" />
                 <h2 className="text-[18px] leading-[26px] font-semibold text-[#101828]">
                   Latest appointments
                 </h2>
@@ -240,7 +240,7 @@ const Dashboard = () => {
             {!dashData.latestAppointments || dashData.latestAppointments.length === 0 ? (
               <div className="p-12 text-center">
                 <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#F2F4F7] text-[#667085] flex items-center justify-center">
-                  <img src={assets.list_icon} alt="" className="w-6 h-6 object-contain opacity-60" />
+                  <ClipboardList className="w-6 h-6 text-[#667085]" />
                 </div>
                 <h3 className="text-[16px] font-semibold text-[#101828]">No appointments yet</h3>
                 <p className="text-[14px] text-[#667085] max-w-sm mx-auto mt-1">

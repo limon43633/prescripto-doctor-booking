@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { assets, menuLinks } from '../assets/assets'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { MenuIcon, X } from 'lucide-react'
+import { MenuIcon, X, ChevronDown } from 'lucide-react'
 import { AppContext } from '../context/AppContext'
 
 const Navbar = () => {
@@ -47,7 +47,7 @@ const Navbar = () => {
                 className='flex items-center gap-2 cursor-pointer'
               >
                 <img className='w-8 h-8 rounded-full object-cover' src={userData ? userData.image : assets.profile_pic} alt="" />
-                <img className='w-2.5' src={assets.dropdown_icon} alt="" />
+                <ChevronDown className='w-3.5 h-3.5 text-gray-600' />
               </div>
 
               {/* Backdrop to close on outside click */}

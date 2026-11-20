@@ -1,5 +1,6 @@
 import React from 'react'
 import { assets } from '../assets/assets'
+import { ArrowRight } from 'lucide-react'
 
 const Header = () => {
   return (
@@ -23,7 +24,7 @@ const Header = () => {
           href="#speciality"
           className='flex items-center gap-2 bg-white px-8 py-3 rounded-full text-gray-600 text-sm font-medium mt-2 shadow-sm hover:scale-105 active:scale-95 transition-all duration-300'
         >
-          Book appointment <img className='w-3' src={assets.arrow_icon} alt="Arrow Icon" />
+          Book appointment <ArrowRight className='w-4 h-4' />
         </a>
       </div>
 

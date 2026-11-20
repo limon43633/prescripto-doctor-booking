@@ -1,36 +1,23 @@
 import React from 'react'
 import { assets } from '../assets/assets'
+import { Zap, MapPin, UserCheck } from 'lucide-react'
 
 const About = () => {
   const features = [
     {
       title: 'EFFICIENCY',
       desc: 'Streamlined appointment scheduling that fits into your busy lifestyle.',
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      ),
+      icon: <Zap className="w-6 h-6" strokeWidth={1.8} />,
     },
     {
       title: 'CONVENIENCE',
       desc: 'Access to a network of trusted healthcare professionals in your area.',
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
+      icon: <MapPin className="w-6 h-6" strokeWidth={1.8} />,
     },
     {
       title: 'PERSONALIZATION',
       desc: 'Tailored recommendations and reminders to help you stay on top of your health.',
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
-        </svg>
-      ),
+      icon: <UserCheck className="w-6 h-6" strokeWidth={1.8} />,
     },
   ]
 

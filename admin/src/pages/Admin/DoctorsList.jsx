@@ -2,6 +2,12 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AdminContext } from '../../context/AdminContext'
 import { IconChevronDown } from '../../components/ui/Icons'
+import {
+  Search as SearchIcon,
+  X as CloseIcon,
+  Plus as PlusIcon,
+  Users as UsersIcon,
+} from 'lucide-react'
 
 const currency = '$'
 
@@ -17,33 +23,6 @@ const formatExperience = (value) => {
   if (Number.isNaN(n)) return value ? String(value) : '—'
   return `${n} ${n === 1 ? 'year' : 'years'}`
 }
-
-const SearchIcon = (props) => (
-  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.75' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true' {...props}>
-    <circle cx='11' cy='11' r='7' />
-    <path d='m20 20-3.5-3.5' />
-  </svg>
-)
-
-const CloseIcon = (props) => (
-  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.75' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true' {...props}>
-    <path d='M6 6l12 12M18 6 6 18' />
-  </svg>
-)
-
-const PlusIcon = (props) => (
-  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.75' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true' {...props}>
-    <path d='M12 5v14M5 12h14' />
-  </svg>
-)
-
-const UsersIcon = (props) => (
-  <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.75' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true' {...props}>
-    <circle cx='9' cy='8' r='3.5' />
-    <path d='M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5' />
-    <path d='M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.7 2.8 2.4 3 4.2' />
-  </svg>
-)
 
 const cardClass =
   'rounded-2xl bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-8px_rgba(16,24,40,0.06)] ring-1 ring-black/[0.03]'

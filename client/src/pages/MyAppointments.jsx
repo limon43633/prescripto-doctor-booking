@@ -19,6 +19,31 @@ const MyAppointments = () => {
     return `${day} ${months[Number(month) - 1]}, ${year}`
   }
 
+  const formatCancelDate = (timestamp) => {
+    if (!timestamp) return ''
+    const d = new Date(timestamp)
+    const day = d.getDate()
+    const month = months[d.getMonth()]
+    const year = d.getFullYear()
+    return `${day} ${month}, ${year}`
+  }
+
+  const getCancelledCaption = (cancelledBy, cancelledAt) => {
+    if (!cancelledBy) return null
+    const who =
+      cancelledBy === 'user'
+        ? 'Cancelled by you'
+        : cancelledBy === 'admin'
+        ? 'Cancelled by admin'
+        : cancelledBy === 'doctor'
+        ? 'Cancelled by doctor'
+        : null
+
+    if (!who) return null
+    const dateStr = formatCancelDate(cancelledAt)
+    return dateStr ? `${who} · ${dateStr}` : who
+  }
+
   const getUserAppointments = async () => {
     try {
       const { data } = await axios.get(backendUrl + '/api/user/appointments', { headers: { token } })
@@ -102,9 +127,16 @@ const MyAppointments = () => {
 
               <div className='flex sm:flex-col gap-2 shrink-0'>
                 {item.cancelled ? (
-                  <p className='flex-1 sm:w-40 text-center text-sm font-medium border border-red-200 bg-red-50 text-red-500 py-2.5 rounded-lg'>
-                    Appointment cancelled
-                  </p>
+                  <div className='flex-1 sm:w-40 flex flex-col items-center'>
+                    <p className='w-full text-center text-sm font-medium border border-red-200 bg-red-50 text-red-500 py-2.5 rounded-lg'>
+                      Appointment cancelled
+                    </p>
+                    {item.cancelledBy && (
+                      <p className='text-[13px] text-gray-500 mt-1 text-center'>
+                        {getCancelledCaption(item.cancelledBy, item.cancelledAt)}
+                      </p>
+                    )}
+                  </div>
                 ) : item.payment ? (
                   <p className='flex-1 sm:w-40 text-center text-sm font-medium border border-emerald-200 bg-emerald-50 text-emerald-600 py-2.5 rounded-lg'>
                     Paid

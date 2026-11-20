@@ -140,7 +140,7 @@ const appointmentCancel = async (req, res) => {
             return res.json({ success: false, message: 'This appointment is already paid. Refunds are not supported in this demo, so it cannot be cancelled.' })
         }
 
-        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
+        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true, cancelledBy: 'admin', cancelledAt: Date.now() })
 
         // releasing doctor slot
         const { docId, slotDate, slotTime } = appointmentData

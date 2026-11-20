@@ -247,7 +247,7 @@ const cancelAppointment = async (req, res) => {
       return res.json({ success: false, message: 'Paid appointments cannot be cancelled online. Please contact support.' })
     }
 
-    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
+    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true, cancelledBy: 'user', cancelledAt: Date.now() })
 
     // releasing doctor slot
     const { docId, slotDate, slotTime } = appointmentData

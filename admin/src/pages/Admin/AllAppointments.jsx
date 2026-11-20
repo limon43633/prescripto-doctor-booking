@@ -208,6 +208,31 @@ const DESKTOP_GRID = 'grid-cols-[minmax(220px,2fr)_70px_minmax(160px,1.4fr)_minm
 // Main Component: AllAppointments
 // ---------------------------------------------------------------------------
 
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+const formatCancelDate = (timestamp) => {
+  if (!timestamp) return ''
+  const d = new Date(timestamp)
+  const day = d.getDate()
+  const month = months[d.getMonth()]
+  const year = d.getFullYear()
+  return `${day} ${month}, ${year}`
+}
+
+const getCancelledByAdminText = (cancelledBy) => {
+  if (cancelledBy === 'user') return 'by patient'
+  if (cancelledBy === 'admin') return 'by admin'
+  if (cancelledBy === 'doctor') return 'by doctor'
+  return ''
+}
+
+const getCancelledFullPhrase = (item) => {
+  const who = item.cancelledBy === 'user' ? 'patient' : item.cancelledBy === 'admin' ? 'admin' : item.cancelledBy === 'doctor' ? 'doctor' : ''
+  if (!who) return 'Cancelled'
+  const dateStr = formatCancelDate(item.cancelledAt)
+  return dateStr ? `Cancelled by ${who} on ${dateStr}` : `Cancelled by ${who}`
+}
+
 const AllAppointments = () => {
   const { aToken, appointments, getAllAppointments, cancelAppointment } = useContext(AdminContext)
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext)
@@ -726,7 +751,20 @@ const AllAppointments = () => {
                       {/* Status */}
                       <div>
                         {item.cancelled ? (
-                          <Badge variant="danger">Cancelled</Badge>
+                          item.cancelledBy ? (
+                            <div
+                              className="inline-flex flex-col items-start gap-1"
+                              title={getCancelledFullPhrase(item)}
+                              aria-label={getCancelledFullPhrase(item)}
+                            >
+                              <Badge variant="danger">Cancelled</Badge>
+                              <span className="text-[13px] text-gray-500">
+                                {getCancelledByAdminText(item.cancelledBy)}
+                              </span>
+                            </div>
+                          ) : (
+                            <Badge variant="danger">Cancelled</Badge>
+                          )
                         ) : item.isCompleted ? (
                           <Badge variant="success">Completed</Badge>
                         ) : (
@@ -787,7 +825,20 @@ const AllAppointments = () => {
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <div className="flex items-center gap-2">
                           {item.cancelled ? (
-                            <Badge variant="danger">Cancelled</Badge>
+                            item.cancelledBy ? (
+                              <div
+                                className="inline-flex items-center gap-1.5 flex-wrap"
+                                title={getCancelledFullPhrase(item)}
+                                aria-label={getCancelledFullPhrase(item)}
+                              >
+                                <Badge variant="danger">Cancelled</Badge>
+                                <span className="text-[13px] text-gray-500">
+                                  {getCancelledByAdminText(item.cancelledBy)}
+                                </span>
+                              </div>
+                            ) : (
+                              <Badge variant="danger">Cancelled</Badge>
+                            )
                           ) : item.isCompleted ? (
                             <Badge variant="success">Completed</Badge>
                           ) : (

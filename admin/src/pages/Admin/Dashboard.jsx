@@ -38,6 +38,31 @@ const DoctorAvatar = ({ image, name }) => {
   )
 }
 
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+const formatCancelDate = (timestamp) => {
+  if (!timestamp) return ''
+  const d = new Date(timestamp)
+  const day = d.getDate()
+  const month = months[d.getMonth()]
+  const year = d.getFullYear()
+  return `${day} ${month}, ${year}`
+}
+
+const getCancelledByAdminText = (cancelledBy) => {
+  if (cancelledBy === 'user') return 'by patient'
+  if (cancelledBy === 'admin') return 'by admin'
+  if (cancelledBy === 'doctor') return 'by doctor'
+  return ''
+}
+
+const getCancelledFullPhrase = (item) => {
+  const who = item.cancelledBy === 'user' ? 'patient' : item.cancelledBy === 'admin' ? 'admin' : item.cancelledBy === 'doctor' ? 'doctor' : ''
+  if (!who) return 'Cancelled'
+  const dateStr = formatCancelDate(item.cancelledAt)
+  return dateStr ? `Cancelled by ${who} on ${dateStr}` : `Cancelled by ${who}`
+}
+
 const Dashboard = () => {
   const { aToken, dashData, getDashData, cancelAppointment } = useContext(AdminContext)
   const { slotDateFormat } = useContext(AppContext)
@@ -284,7 +309,20 @@ const Dashboard = () => {
                       {/* Right: Action or Status Badge */}
                       <div className="shrink-0 flex items-center justify-end">
                         {item.cancelled ? (
-                          <Badge variant="danger">Cancelled</Badge>
+                          item.cancelledBy ? (
+                            <div
+                              className="flex flex-col items-end gap-1 max-w-[120px]"
+                              title={getCancelledFullPhrase(item)}
+                              aria-label={getCancelledFullPhrase(item)}
+                            >
+                              <Badge variant="danger">Cancelled</Badge>
+                              <span className="text-[13px] text-gray-500 truncate max-w-full">
+                                {getCancelledByAdminText(item.cancelledBy)}
+                              </span>
+                            </div>
+                          ) : (
+                            <Badge variant="danger">Cancelled</Badge>
+                          )
                         ) : item.isCompleted ? (
                           <Badge variant="success">Completed</Badge>
                         ) : isCancellable ? (

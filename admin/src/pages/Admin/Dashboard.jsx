@@ -281,7 +281,7 @@ const Dashboard = () => {
                     : item.isCompleted
                       ? 'Completed'
                       : item.payment
-                        ? 'Paid — refunds not supported in demo'
+                        ? 'Paid online — refunds not supported in demo'
                         : ''
 
                   return (
@@ -309,20 +309,18 @@ const Dashboard = () => {
                       {/* Right: Action or Status Badge */}
                       <div className="shrink-0 flex items-center justify-end">
                         {item.cancelled ? (
-                          item.cancelledBy ? (
-                            <div
-                              className="flex flex-col items-end gap-1 max-w-[120px]"
-                              title={getCancelledFullPhrase(item)}
-                              aria-label={getCancelledFullPhrase(item)}
-                            >
-                              <Badge variant="danger">Cancelled</Badge>
+                          <div
+                            className="flex flex-col items-end gap-1 max-w-[120px]"
+                            title={getCancelledFullPhrase(item)}
+                            aria-label={getCancelledFullPhrase(item)}
+                          >
+                            <Badge variant="danger">Cancelled</Badge>
+                            {item.cancelledBy && (
                               <span className="text-[13px] text-gray-500 truncate max-w-full">
                                 {getCancelledByAdminText(item.cancelledBy)}
                               </span>
-                            </div>
-                          ) : (
-                            <Badge variant="danger">Cancelled</Badge>
-                          )
+                            )}
+                          </div>
                         ) : item.isCompleted ? (
                           <Badge variant="success">Completed</Badge>
                         ) : isCancellable ? (

@@ -16,17 +16,63 @@ const DoctorContextProvider = (props) => {
             const {data} = await axios.get(backendUrl + '/api/doctor/appointments',{headers:{dToken}})
 
             if (data.success) {
-                setAppointments(data.appointments.reverse())
-                console.log(data.appointments.reverse());
-
+                setAppointments(data.appointments)
+                return true
             } else {
                 toast.error(data.message)
+                return false
             }
 
         } catch (error) {
             console.log(error);
             toast.error(error.message)
+            return false
+        }
+    }
 
+    const completeAppointment = async (appointmentId) => {
+        try {
+            const { data } = await axios.post(
+                backendUrl + '/api/doctor/complete-appointment',
+                { appointmentId },
+                { headers: { dToken } }
+            )
+
+            if (data.success) {
+                toast.success(data.message)
+                await getAppointments()
+                return true
+            } else {
+                toast.error(data.message)
+                return false
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+            return false
+        }
+    }
+
+    const cancelAppointment = async (appointmentId) => {
+        try {
+            const { data } = await axios.post(
+                backendUrl + '/api/doctor/cancel-appointment',
+                { appointmentId },
+                { headers: { dToken } }
+            )
+
+            if (data.success) {
+                toast.success(data.message)
+                await getAppointments()
+                return true
+            } else {
+                toast.error(data.message)
+                return false
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+            return false
         }
     }
 
@@ -37,6 +83,8 @@ const DoctorContextProvider = (props) => {
         backendUrl,
         appointments,setAppointments,
         getAppointments,
+        completeAppointment,
+        cancelAppointment,
     }
 
     return (

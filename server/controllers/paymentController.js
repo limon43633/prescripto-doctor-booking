@@ -51,6 +51,10 @@ const validatePayableAppointment = async (appointmentId, userId) => {
     return { ok: false, message: 'Cancelled appointments cannot be paid' }
   }
 
+  if (appointment.isCompleted) {
+    return { ok: false, message: 'Completed appointments cannot be paid' }
+  }
+
   if (appointment.payment) {
     return { ok: false, message: 'Appointment is already paid' }
   }
@@ -294,6 +298,10 @@ const confirmPayment = async (req, res) => {
 
     if (appointment.cancelled) {
       return res.json({ success: false, message: 'Cancelled appointments cannot be paid' })
+    }
+
+    if (appointment.isCompleted) {
+      return res.json({ success: false, message: 'Completed appointments cannot be paid' })
     }
 
     if (appointment.payment) {

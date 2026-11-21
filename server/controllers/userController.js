@@ -243,6 +243,10 @@ const cancelAppointment = async (req, res) => {
       return res.json({ success: false, message: 'Appointment already cancelled' })
     }
 
+    if (appointmentData.isCompleted) {
+      return res.json({ success: false, message: 'Completed appointments cannot be cancelled' })
+    }
+
     if (appointmentData.payment) {
       return res.json({ success: false, message: 'Paid appointments cannot be cancelled online. Please contact support.' })
     }

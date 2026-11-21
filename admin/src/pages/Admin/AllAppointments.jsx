@@ -422,7 +422,7 @@ const AllAppointments = () => {
         <StatCard
           label="Total bookings"
           value={loading ? '—' : summary.total}
-          footer={`${currency}${summary.collected.toLocaleString()} collected`}
+          footer={`${currency}${summary.collected.toLocaleString()} paid online`}
           icon={IconCalendar}
           variant="brand"
           isActive={statusFilter === 'all'}
@@ -433,9 +433,9 @@ const AllAppointments = () => {
         />
 
         <StatCard
-          label="Active bookings"
+          label="Pending bookings"
           value={loading ? '—' : summary.active}
-          footer={`${summary.unpaidActive} awaiting payment`}
+          footer={`${summary.unpaidActive} pay by cash`}
           icon={IconClock}
           variant="brand"
           isActive={statusFilter === 'active'}
@@ -530,8 +530,8 @@ const AllAppointments = () => {
                   className="h-10 pl-3.5 pr-9 appearance-none rounded-[12px] border border-[#D0D5DD] bg-white text-[14px] font-medium text-[#344054] hover:bg-[#F9FAFB] focus:outline-none focus:border-[#5F6FFF] focus:ring-4 focus:ring-[#5F6FFF]/15 cursor-pointer transition-all"
                 >
                   <option value="all">All payments</option>
-                  <option value="paid">Paid only</option>
-                  <option value="unpaid">Unpaid only</option>
+                  <option value="paid">Online</option>
+                  <option value="unpaid">Cash</option>
                 </select>
                 <IconChevronDown className="w-4 h-4 text-[#667085] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -559,7 +559,7 @@ const AllAppointments = () => {
             <div className="bg-[#F2F4F7] p-1 rounded-[12px] inline-flex items-center gap-1 overflow-x-auto max-w-full">
               {[
                 { id: 'all', label: 'All', count: summary.total },
-                { id: 'active', label: 'Active', count: summary.active },
+                { id: 'active', label: 'Pending', count: summary.active },
                 { id: 'completed', label: 'Completed', count: summary.completed },
                 { id: 'cancelled', label: 'Cancelled', count: summary.cancelled },
               ].map((tab) => {
@@ -683,7 +683,7 @@ const AllAppointments = () => {
                     : item.isCompleted
                       ? 'Completed'
                       : item.payment
-                        ? 'Paid — refunds not supported in demo'
+                        ? 'Paid online — refunds not supported in demo'
                         : ''
 
                   return (
@@ -742,33 +742,33 @@ const AllAppointments = () => {
                         {item.cancelled ? (
                           <span className="text-[13px] text-[#98A2B3]">—</span>
                         ) : item.payment ? (
-                          <Badge variant="success">Paid</Badge>
+                          <Badge variant="success">Online</Badge>
                         ) : (
-                          <Badge variant="warning">Unpaid</Badge>
+                          <span className="inline-flex items-center h-6 px-2.5 rounded-full text-[12px] font-semibold border border-[#D0D5DD] bg-white text-[#344054] select-none tracking-wide">
+                            Cash
+                          </span>
                         )}
                       </div>
 
                       {/* Status */}
                       <div>
                         {item.cancelled ? (
-                          item.cancelledBy ? (
-                            <div
-                              className="inline-flex flex-col items-start gap-1"
-                              title={getCancelledFullPhrase(item)}
-                              aria-label={getCancelledFullPhrase(item)}
-                            >
-                              <Badge variant="danger">Cancelled</Badge>
+                          <div
+                            className="inline-flex flex-col items-start gap-1"
+                            title={getCancelledFullPhrase(item)}
+                            aria-label={getCancelledFullPhrase(item)}
+                          >
+                            <Badge variant="danger">Cancelled</Badge>
+                            {item.cancelledBy && (
                               <span className="text-[13px] text-gray-500">
                                 {getCancelledByAdminText(item.cancelledBy)}
                               </span>
-                            </div>
-                          ) : (
-                            <Badge variant="danger">Cancelled</Badge>
-                          )
+                            )}
+                          </div>
                         ) : item.isCompleted ? (
                           <Badge variant="success">Completed</Badge>
                         ) : (
-                          <Badge variant="brand">Active</Badge>
+                          <Badge variant="warning">Pending</Badge>
                         )}
                       </div>
 
@@ -812,7 +812,7 @@ const AllAppointments = () => {
                   : item.isCompleted
                     ? 'Completed'
                     : item.payment
-                      ? 'Paid — refunds not supported in demo'
+                      ? 'Paid online — refunds not supported in demo'
                       : ''
 
                 return (
@@ -825,31 +825,31 @@ const AllAppointments = () => {
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <div className="flex items-center gap-2">
                           {item.cancelled ? (
-                            item.cancelledBy ? (
-                              <div
-                                className="inline-flex items-center gap-1.5 flex-wrap"
-                                title={getCancelledFullPhrase(item)}
-                                aria-label={getCancelledFullPhrase(item)}
-                              >
-                                <Badge variant="danger">Cancelled</Badge>
+                            <div
+                              className="inline-flex items-center gap-1.5 flex-wrap"
+                              title={getCancelledFullPhrase(item)}
+                              aria-label={getCancelledFullPhrase(item)}
+                            >
+                              <Badge variant="danger">Cancelled</Badge>
+                              {item.cancelledBy && (
                                 <span className="text-[13px] text-gray-500">
                                   {getCancelledByAdminText(item.cancelledBy)}
                                 </span>
-                              </div>
-                            ) : (
-                              <Badge variant="danger">Cancelled</Badge>
-                            )
+                              )}
+                            </div>
                           ) : item.isCompleted ? (
                             <Badge variant="success">Completed</Badge>
                           ) : (
-                            <Badge variant="brand">Active</Badge>
+                            <Badge variant="warning">Pending</Badge>
                           )}
 
                           {!item.cancelled && (
                             item.payment ? (
-                              <Badge variant="success">Paid</Badge>
+                              <Badge variant="success">Online</Badge>
                             ) : (
-                              <Badge variant="warning">Unpaid</Badge>
+                              <span className="inline-flex items-center h-6 px-2.5 rounded-full text-[12px] font-semibold border border-[#D0D5DD] bg-white text-[#344054] select-none tracking-wide">
+                                Cash
+                              </span>
                             )
                           )}
                         </div>

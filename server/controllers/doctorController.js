@@ -68,11 +68,33 @@ const loginDoctor = async (req, res) => {
 
 
 // API to get doctor appointments for doctor panel
+// Sorted by updatedAt (descending) with fallback to createdAt (descending) and date (descending)
 const appointmentsDoctor = async (req, res) => {
   try {
     const appointments = await appointmentModel
       .find({ docId: req.docId })
-      .sort({ date: -1 })   // notun booking shobar upore
+      .sort({ updatedAt: -1, createdAt: -1, date: -1 })
+
+    // Strict in-memory sort to guarantee newest / recently updated bookings appear at the top
+    // across mixed document versions (Date objects, ISO strings, epoch numbers)
+    appointments.sort((a, b) => {
+      const getTimestamp = (doc) => {
+        if (doc.updatedAt) {
+          const t = new Date(doc.updatedAt).getTime()
+          if (!isNaN(t) && t > 0) return t
+        }
+        if (doc.createdAt) {
+          const t = new Date(doc.createdAt).getTime()
+          if (!isNaN(t) && t > 0) return t
+        }
+        if (doc.date) {
+          const t = Number(doc.date)
+          if (!isNaN(t) && t > 0) return t
+        }
+        return 0
+      }
+      return getTimestamp(b) - getTimestamp(a)
+    })
 
     res.json({ success: true, appointments })
   } catch (error) {
@@ -103,7 +125,10 @@ const appointmentComplete = async (req, res) => {
       return res.json({ success: false, message: 'Appointment already completed' })
     }
 
-    await appointmentModel.findByIdAndUpdate(appointmentId, { isCompleted: true })
+    await appointmentModel.findByIdAndUpdate(appointmentId, {
+      isCompleted: true,
+      updatedAt: new Date()
+    })
     return res.json({ success: true, message: 'Appointment completed' })
   } catch (error) {
     console.log(error)
@@ -140,7 +165,8 @@ const appointmentCancel = async (req, res) => {
     await appointmentModel.findByIdAndUpdate(appointmentId, {
       cancelled: true,
       cancelledBy: 'doctor',
-      cancelledAt: Date.now()
+      cancelledAt: Date.now(),
+      updatedAt: new Date()
     })
 
     // releasing doctor slot

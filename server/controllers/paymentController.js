@@ -126,12 +126,12 @@ const settleDemoPayment = async ({ payment, appointment, outcome, metadata }) =>
     if (!updatedPayment) {
       const current = await paymentModel.findById(payment._id)
       if (current?.status === 'paid') {
-        await appointmentModel.findByIdAndUpdate(payment.appointmentId, { payment: true })
+        await appointmentModel.findByIdAndUpdate(payment.appointmentId, { payment: true, updatedAt: new Date() })
       }
       return current || payment
     }
 
-    await appointmentModel.findByIdAndUpdate(payment.appointmentId, { payment: true })
+    await appointmentModel.findByIdAndUpdate(payment.appointmentId, { payment: true, updatedAt: new Date() })
     return updatedPayment
   }
 
@@ -276,7 +276,7 @@ const confirmPayment = async (req, res) => {
     // Idempotent handling: return existing settled state without modifying it
     if (payment.status === 'paid') {
       if (appointment && !appointment.payment) {
-        await appointmentModel.findByIdAndUpdate(payment.appointmentId, { payment: true })
+        await appointmentModel.findByIdAndUpdate(payment.appointmentId, { payment: true, updatedAt: new Date() })
       }
       return res.json({
         success: true,

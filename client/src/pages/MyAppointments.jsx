@@ -22,26 +22,18 @@ const MyAppointments = () => {
   const formatCancelDate = (timestamp) => {
     if (!timestamp) return ''
     const d = new Date(timestamp)
+    if (isNaN(d.getTime())) return ''
     const day = d.getDate()
     const month = months[d.getMonth()]
     const year = d.getFullYear()
     return `${day} ${month}, ${year}`
   }
 
-  const getCancelledCaption = (cancelledBy, cancelledAt) => {
-    if (!cancelledBy) return null
-    const who =
-      cancelledBy === 'user'
-        ? 'Cancelled by you'
-        : cancelledBy === 'admin'
-        ? 'Cancelled by admin'
-        : cancelledBy === 'doctor'
-        ? 'Cancelled by doctor'
-        : null
-
-    if (!who) return null
-    const dateStr = formatCancelDate(cancelledAt)
-    return dateStr ? `${who} · ${dateStr}` : who
+  const getCancelledRoleText = (cancelledBy) => {
+    if (cancelledBy === 'user') return 'Cancelled by you'
+    if (cancelledBy === 'admin') return 'Cancelled by admin'
+    if (cancelledBy === 'doctor') return 'Cancelled by doctor'
+    return cancelledBy ? `Cancelled by ${cancelledBy}` : 'Cancelled'
   }
 
   const getCancelledFullPhrase = (item) => {
@@ -49,12 +41,12 @@ const MyAppointments = () => {
       item.cancelledBy === 'user'
         ? 'you'
         : item.cancelledBy === 'admin'
-        ? 'admin'
-        : item.cancelledBy === 'doctor'
-        ? 'doctor'
-        : ''
+          ? 'admin'
+          : item.cancelledBy === 'doctor'
+            ? 'doctor'
+            : ''
     if (!who) return 'Appointment cancelled'
-    const dateStr = formatCancelDate(item.cancelledAt)
+    const dateStr = formatCancelDate(item.cancelledAt || item.updatedAt)
     return dateStr ? `Cancelled by ${who} on ${dateStr}` : `Cancelled by ${who}`
   }
 
@@ -75,7 +67,7 @@ const MyAppointments = () => {
 
   const cancelAppointment = async (appointmentId) => {
     try {
-      const { data } = await axios.post(backendUrl + '/api/user/cancel-appointment',{appointmentId},{headers:{token}}
+      const { data } = await axios.post(backendUrl + '/api/user/cancel-appointment', { appointmentId }, { headers: { token } }
       )
 
       if (data.success) {
@@ -154,9 +146,16 @@ const MyAppointments = () => {
                       Appointment cancelled
                     </p>
                     {item.cancelledBy && (
-                      <p className='text-[13px] text-gray-500 mt-1 text-center'>
-                        {getCancelledCaption(item.cancelledBy, item.cancelledAt)}
-                      </p>
+                      <div className='flex flex-col items-center text-center gap-0.5 mt-1.5'>
+                        <span className='text-xs font-medium text-gray-500'>
+                          {getCancelledRoleText(item.cancelledBy)}
+                        </span>
+                        {formatCancelDate(item.cancelledAt || item.updatedAt) && (
+                          <span className='text-[11px] text-gray-400 whitespace-nowrap tabular-nums'>
+                            {formatCancelDate(item.cancelledAt || item.updatedAt)}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 ) : item.isCompleted ? (

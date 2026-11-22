@@ -69,6 +69,39 @@ const parseSlotDateTime = (slotDate, slotTime, fallbackTimestamp) => {
   }
 }
 
+// Extract timestamp for sorting appointments primarily by updatedAt (descending)
+// fallback to createdAt (descending) -> date / cancelledAt (descending) -> parseSlotDateTime
+const getAppointmentTimestamp = (item) => {
+  if (!item) return 0
+  // 1. Primary: updatedAt
+  if (item.updatedAt) {
+    const t = new Date(item.updatedAt).getTime()
+    if (!isNaN(t) && t > 0) return t
+  }
+  // 2. Secondary: createdAt
+  if (item.createdAt) {
+    const t = new Date(item.createdAt).getTime()
+    if (!isNaN(t) && t > 0) return t
+  }
+  // 3. Fallbacks: date or cancelledAt
+  if (item.cancelledAt) {
+    const t = Number(item.cancelledAt)
+    if (!isNaN(t) && t > 0) return t
+  }
+  if (item.date) {
+    const t = Number(item.date)
+    if (!isNaN(t) && t > 0) return t
+  }
+  // 4. Fallback: scheduled slot date/time
+  return parseSlotDateTime(item.slotDate, item.slotTime, 0)
+}
+
+const sortByLatestDesc = (a, b) => {
+  const timeA = getAppointmentTimestamp(a)
+  const timeB = getAppointmentTimestamp(b)
+  return timeB - timeA // Descending: newest / latest first
+}
+
 // Table grid column definition for XL desktop screens (1280px+)
 const DESKTOP_GRID = 'grid-cols-[48px_minmax(200px,2fr)_100px_80px_minmax(160px,1.4fr)_90px_110px]'
 
@@ -78,12 +111,13 @@ const DoctorAppointments = () => {
 
   const [loading, setLoading] = useState(Boolean(dToken) && (!appointments || appointments.length === 0))
   const [error, setError] = useState(false)
+  const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'booking' | 'completed' | 'cancelled'
 
   // Confirmation dialog state: { type: 'cancel' | 'complete', appointment }
   const [actionDialog, setActionDialog] = useState(null)
   const [actionLoading, setActionLoading] = useState(false)
 
-  // Fetch appointments on mount / when token changes
+  // Fetch appointments on mount / when token changes, with auto-refresh and focus listener
   useEffect(() => {
     let isSubscribed = true
     if (dToken) {
@@ -100,6 +134,25 @@ const DoctorAppointments = () => {
             setLoading(false)
           }
         })
+
+      // Polling every 10 seconds while tab is active to capture new/updated bookings in real-time
+      const interval = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          getAppointments()
+        }
+      }, 10000)
+
+      // Auto-refresh when tab gains focus
+      const handleFocus = () => {
+        getAppointments()
+      }
+      window.addEventListener('focus', handleFocus)
+
+      return () => {
+        isSubscribed = false
+        clearInterval(interval)
+        window.removeEventListener('focus', handleFocus)
+      }
     }
     return () => {
       isSubscribed = false
@@ -117,7 +170,33 @@ const DoctorAppointments = () => {
     setLoading(false)
   }
 
-  // Active appointments first (soonest first), then completed and cancelled (newest first)
+  // Summary counts for tabs
+  const summary = useMemo(() => {
+    const list = Array.isArray(appointments) ? appointments : []
+    let booking = 0
+    let completed = 0
+    let cancelled = 0
+
+    for (const appt of list) {
+      if (appt.cancelled) {
+        cancelled++
+      } else if (appt.isCompleted) {
+        completed++
+      } else {
+        booking++
+      }
+    }
+
+    return {
+      total: list.length,
+      booking,
+      completed,
+      cancelled,
+    }
+  }, [appointments])
+
+  // Appointments sorted primarily by updatedAt (descending) -> createdAt (descending) -> date (descending)
+  // Newly created bookings and recently updated bookings appear at the very top.
   const sortedAppointments = useMemo(() => {
     if (!Array.isArray(appointments)) return []
 
@@ -132,22 +211,25 @@ const DoctorAppointments = () => {
       }
     }
 
-    // Active: soonest appointment date/time first (ascending)
-    active.sort((a, b) => {
-      const timeA = parseSlotDateTime(a.slotDate, a.slotTime, a.date)
-      const timeB = parseSlotDateTime(b.slotDate, b.slotTime, b.date)
-      return timeA - timeB
-    })
+    // Booking state (active): newly created and recently updated bookings always appear at the top (descending)
+    active.sort(sortByLatestDesc)
 
-    // Inactive: newest booking first (descending)
-    inactive.sort((a, b) => {
-      const timeA = parseSlotDateTime(a.slotDate, a.slotTime, a.date)
-      const timeB = parseSlotDateTime(b.slotDate, b.slotTime, b.date)
-      return timeB - timeA
-    })
+    // Inactive (completed / cancelled): latest updated first (descending)
+    inactive.sort(sortByLatestDesc)
 
+    if (statusFilter === 'booking') {
+      return active
+    }
+    if (statusFilter === 'completed') {
+      return inactive.filter((appt) => appt.isCompleted && !appt.cancelled)
+    }
+    if (statusFilter === 'cancelled') {
+      return inactive.filter((appt) => appt.cancelled)
+    }
+
+    // Default 'all': Active / Booking state first (descending), followed by Inactive (descending)
     return [...active, ...inactive]
-  }, [appointments])
+  }, [appointments, statusFilter])
 
   const handleConfirmAction = async () => {
     if (!actionDialog || actionLoading) return
@@ -176,6 +258,37 @@ const DoctorAppointments = () => {
 
       {/* Main Content Card */}
       <div className="bg-white rounded-[20px] border border-[#EAECF0] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-8px_rgba(16,24,40,0.06)] overflow-hidden">
+        {/* Status Filter Tabs */}
+        <div className="p-4 sm:px-6 sm:py-3.5 border-b border-[#EAECF0] bg-white flex items-center justify-between gap-4 flex-wrap">
+          <div className="bg-[#F2F4F7] p-1 rounded-[12px] inline-flex items-center gap-1 overflow-x-auto max-w-full">
+            {[
+              { id: 'all', label: 'All', count: summary.total },
+              { id: 'booking', label: 'Booking', count: summary.booking },
+              { id: 'completed', label: 'Completed', count: summary.completed },
+              { id: 'cancelled', label: 'Cancelled', count: summary.cancelled },
+            ].map((tab) => {
+              const isActive = statusFilter === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setStatusFilter(tab.id)}
+                  className={`h-9 px-4 rounded-[8px] text-[14px] font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+                    isActive
+                      ? 'bg-white text-[#101828] shadow-[0_1px_2px_rgba(16,24,40,0.06)]'
+                      : 'text-[#667085] hover:text-[#101828]'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-[#EAECF0] text-[#344054] font-semibold tabular-nums">
+                    {tab.count}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         {/* State A: Loading Skeleton */}
         {loading && (!appointments || appointments.length === 0) && (
           <div aria-busy="true" className="divide-y divide-[#F2F4F7]">
@@ -242,9 +355,19 @@ const DoctorAppointments = () => {
             <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#F2F4F7] text-[#667085] flex items-center justify-center">
               <IconCalendar className="w-6 h-6" />
             </div>
-            <h3 className="text-[16px] font-semibold text-[#101828]">No appointments yet</h3>
+            <h3 className="text-[16px] font-semibold text-[#101828]">
+              {statusFilter === 'booking'
+                ? 'No active bookings'
+                : statusFilter === 'completed'
+                ? 'No completed appointments'
+                : statusFilter === 'cancelled'
+                ? 'No cancelled appointments'
+                : 'No appointments yet'}
+            </h3>
             <p className="text-[14px] text-[#667085] max-w-sm mx-auto mt-1">
-              When patients book consultations with you, they will appear here.
+              {statusFilter === 'booking' || statusFilter === 'all'
+                ? 'When patients book consultations with you, they will appear here.'
+                : 'No appointments found in this category.'}
             </p>
           </div>
         )}

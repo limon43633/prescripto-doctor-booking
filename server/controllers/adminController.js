@@ -109,7 +109,7 @@ const allDoctors = async (req,res) => {
 // API to get all appintment list
 const appointmentsAdmin = async (req,res) => {
     try {
-        const appointments = await appointmentModel.find()
+        const appointments = await appointmentModel.find().sort({ updatedAt: -1, createdAt: -1, date: -1 })
         res.json({success:true,appointments})
     } catch (error) {
         console.log(error)
@@ -140,7 +140,7 @@ const appointmentCancel = async (req, res) => {
             return res.json({ success: false, message: 'This appointment is already paid. Refunds are not supported in this demo, so it cannot be cancelled.' })
         }
 
-        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true, cancelledBy: 'admin', cancelledAt: Date.now() })
+        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true, cancelledBy: 'admin', cancelledAt: Date.now(), updatedAt: new Date() })
 
         // releasing doctor slot
         const { docId, slotDate, slotTime } = appointmentData

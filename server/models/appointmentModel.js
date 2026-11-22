@@ -14,7 +14,11 @@ const appointmentSchema = new mongoose.Schema({
     cancelledAt: { type: Number },
     payment: { type: Boolean, default: false },
     isCompleted: { type: Boolean, default: false }
-})
+}, { timestamps: true })
+
+appointmentSchema.index({ docId: 1, updatedAt: -1 })
+appointmentSchema.index({ docId: 1, createdAt: -1 })
+appointmentSchema.index({ docId: 1, date: -1 })
 
 const appointmentModel = mongoose.models.appointment || mongoose.model('appointment',appointmentSchema)
 

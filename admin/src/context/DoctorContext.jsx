@@ -40,6 +40,13 @@ const DoctorContextProvider = (props) => {
 
             if (data.success) {
                 toast.success(data.message)
+                setAppointments(prev =>
+                    prev.map(item =>
+                        item._id === appointmentId
+                            ? { ...item, isCompleted: true, updatedAt: new Date().toISOString() }
+                            : item
+                    )
+                )
                 await getAppointments()
                 return true
             } else {
@@ -63,6 +70,19 @@ const DoctorContextProvider = (props) => {
 
             if (data.success) {
                 toast.success(data.message)
+                setAppointments(prev =>
+                    prev.map(item =>
+                        item._id === appointmentId
+                            ? {
+                                ...item,
+                                cancelled: true,
+                                cancelledBy: 'doctor',
+                                cancelledAt: Date.now(),
+                                updatedAt: new Date().toISOString()
+                              }
+                            : item
+                    )
+                )
                 await getAppointments()
                 return true
             } else {

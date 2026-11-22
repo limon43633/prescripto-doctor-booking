@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+@import "tailwindcss";
+
+
+@theme {
+    --color-primary: #5f6fff
+}
+
+::-webkit-scrollbar{
+    @apply hidden
+}
+
+
+*{
+   font-family: "Outfit", sans-serif;
+}
+
+
+.active {
+  @apply text-white bg-primary;
+}
+
+@keyframes payment-check-circle {
+  0% {
+    stroke-dashoffset: 166;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes payment-check-mark {
+  0% {
+    stroke-dashoffset: 48;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes payment-spinner-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.16);
+    opacity: 0.15;
+  }
+}
+
+@keyframes payment-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-6px);
+  }
+  40%, 80% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes payment-sheet-slide {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.payment-check-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: payment-check-circle 0.55s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.payment-check-mark {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: payment-check-mark 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+}
+
+.payment-spinner-pulse {
+  animation: payment-spinner-pulse 1.6s ease-in-out infinite;
+}
+
+.payment-shake {
+  animation: payment-shake 0.36s ease-in-out;
+}
+
+.payment-sheet-slide {
+  animation: payment-sheet-slide 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .payment-check-circle,
+  .payment-check-mark {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .payment-spinner-pulse,
+  .payment-shake,
+  .payment-sheet-slide {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

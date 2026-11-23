@@ -10,10 +10,13 @@ const DoctorContextProvider = (props) => {
 
     const [appointments, setAppointments] = useState([])
 
+    const [dashData, setDashData] = useState(false)
+
+
     const getAppointments = async () => {
         try {
 
-            const {data} = await axios.get(backendUrl + '/api/doctor/appointments',{headers:{dToken}})
+            const { data } = await axios.get(backendUrl + '/api/doctor/appointments', { headers: { dToken } })
 
             if (data.success) {
                 setAppointments(data.appointments)
@@ -79,7 +82,7 @@ const DoctorContextProvider = (props) => {
                                 cancelledBy: 'doctor',
                                 cancelledAt: Date.now(),
                                 updatedAt: new Date().toISOString()
-                              }
+                            }
                             : item
                     )
                 )
@@ -96,20 +99,47 @@ const DoctorContextProvider = (props) => {
         }
     }
 
-    const [dToken,setDToken] = useState(localStorage.getItem('dToken')?localStorage.getItem('dToken'):'')
+    const [dToken, setDToken] = useState(localStorage.getItem('dToken') ? localStorage.getItem('dToken') : '')
+
+
+
+
+
+    const getDashData = async () => {
+        try {
+            const { data } = await axios.get(backendUrl + '/api/doctor/dashboard', { headers: { dToken } })
+
+            if (data.success) {
+                setDashData(data.dashData)
+                return true
+            } else {
+                toast.error(data.message)
+                return false
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+            return false
+        }
+    }
+
+
+
+
 
     const value = {
-        dToken,setDToken,
+        dToken, setDToken,
         backendUrl,
-        appointments,setAppointments,
+        appointments, setAppointments,
         getAppointments,
         completeAppointment,
         cancelAppointment,
+        dashData,setDashData,getDashData
     }
 
     return (
         <DoctorContext.Provider value={value}>
-          {props.children}
+            {props.children}
         </DoctorContext.Provider>
     )
 

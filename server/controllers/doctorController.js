@@ -188,4 +188,63 @@ const appointmentCancel = async (req, res) => {
   }
 }
 
-export { changeAvailability, doctorList, loginDoctor, appointmentsDoctor, appointmentComplete, appointmentCancel }
+
+
+// API to get dashboard data for doctor panel
+const doctorDashboard = async (req, res) => {
+  try {
+    const docId = req.docId
+
+    const appointments = await appointmentModel
+      .find({ docId })
+      .sort({ updatedAt: -1, createdAt: -1, date: -1 })
+      .lean()
+
+    // Strict in-memory sort to guarantee newest / recently updated bookings appear at the top
+    // matching appointmentsDoctor exactly
+    appointments.sort((a, b) => {
+      const getTimestamp = (doc) => {
+        if (doc.updatedAt) {
+          const t = new Date(doc.updatedAt).getTime()
+          if (!isNaN(t) && t > 0) return t
+        }
+        if (doc.createdAt) {
+          const t = new Date(doc.createdAt).getTime()
+          if (!isNaN(t) && t > 0) return t
+        }
+        if (doc.date) {
+          const t = Number(doc.date)
+          if (!isNaN(t) && t > 0) return t
+        }
+        return 0
+      }
+      return getTimestamp(b) - getTimestamp(a)
+    })
+
+    let earnings = 0
+    appointments.forEach((item) => {
+      if (!item.cancelled && (item.isCompleted || item.payment)) {
+        earnings += item.amount || 0
+      }
+    })
+
+    const patients = new Set(appointments.map((item) => String(item.userId))).size
+
+    const dashData = {
+      earnings,
+      appointments: appointments.length,
+      patients,
+      latestAppointments: appointments.slice(0, 5),
+    }
+
+    return res.json({ success: true, dashData })
+  } catch (error) {
+    console.log(error)
+    return res.json({ success: false, message: error.message })
+  }
+}
+
+
+
+
+export { changeAvailability, doctorList, loginDoctor, appointmentsDoctor, appointmentComplete, appointmentCancel, doctorDashboard }

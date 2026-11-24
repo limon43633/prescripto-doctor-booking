@@ -12,6 +12,8 @@ const DoctorContextProvider = (props) => {
 
     const [dashData, setDashData] = useState(false)
 
+    const [profileData, setProfileData] = useState(false)
+
 
     const getAppointments = async () => {
         try {
@@ -126,6 +128,48 @@ const DoctorContextProvider = (props) => {
 
 
 
+    const getProfileData = async () => {
+        try {
+
+            const {data} = await axios.get(backendUrl + '/api/doctor/profile',{headers:{dToken}})
+
+            if (data.success) {
+                setProfileData(data.profileData)
+                return true
+            } else {
+                toast.error(data.message)
+                return false
+            }
+
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+            return false
+        }
+    }
+
+    const updateProfile = async (update) => {
+        try {
+
+            const {data} = await axios.post(backendUrl + '/api/doctor/update-profile', update, {headers:{dToken}})
+
+            if (data.success) {
+                toast.success(data.message)
+                return true
+            } else {
+                toast.error(data.message)
+                return false
+            }
+
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+            return false
+        }
+    }
+
+
+
 
     const value = {
         dToken, setDToken,
@@ -134,7 +178,10 @@ const DoctorContextProvider = (props) => {
         getAppointments,
         completeAppointment,
         cancelAppointment,
-        dashData,setDashData,getDashData
+        dashData, setDashData, getDashData,
+        profileData, setProfileData,
+        getProfileData,
+        updateProfile,
     }
 
     return (

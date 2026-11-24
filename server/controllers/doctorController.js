@@ -246,5 +246,87 @@ const doctorDashboard = async (req, res) => {
 
 
 
+// API to get doctor profile for doctor panel
+const doctorProfile = async (req, res) => {
+  try {
+    const profileData = await doctorModel.findById(req.docId).select('-password -slots_booked')
 
-export { changeAvailability, doctorList, loginDoctor, appointmentsDoctor, appointmentComplete, appointmentCancel, doctorDashboard }
+    if (!profileData) {
+      return res.json({ success: false, message: 'Doctor not found' })
+    }
+
+    return res.json({ success: true, profileData })
+  } catch (error) {
+    console.log(error)
+    return res.json({ success: false, message: error.message })
+  }
+}
+
+// API to update doctor profile data from doctor panel
+const updateDoctorProfile = async (req, res) => {
+  try {
+    const { fees, address, available } = req.body
+    const update = {}
+
+    if (fees !== undefined) {
+      const amount = Number(fees)
+      if (!Number.isFinite(amount) || amount < 0) {
+        return res.json({ success: false, message: 'Enter a valid fee' })
+      }
+      update.fees = amount
+    }
+
+    if (address !== undefined) {
+      let parsed = address
+      if (typeof address === 'string') {
+        try {
+          parsed = JSON.parse(address)
+        } catch {
+          return res.json({ success: false, message: 'Invalid address' })
+        }
+      }
+
+      const line1 = String(parsed?.line1 ?? '').trim()
+      const line2 = String(parsed?.line2 ?? '').trim()
+
+      if (!line1) {
+        return res.json({ success: false, message: 'Address line 1 is required' })
+      }
+      update.address = { line1, line2 }
+    }
+
+    if (available !== undefined) {
+      update.available = available === true || available === 'true'
+    }
+
+    if (Object.keys(update).length === 0) {
+      return res.json({ success: false, message: 'Nothing to update' })
+    }
+
+    const doctor = await doctorModel.findByIdAndUpdate(req.docId, update, { new: true })
+
+    if (!doctor) {
+      return res.json({ success: false, message: 'Doctor not found' })
+    }
+
+    return res.json({ success: true, message: 'Profile Updated' })
+  } catch (error) {
+    console.log(error)
+    return res.json({ success: false, message: error.message })
+  }
+}
+
+
+
+
+export {
+  changeAvailability,
+  doctorList,
+  loginDoctor,
+  appointmentsDoctor,
+  appointmentComplete,
+  appointmentCancel,
+  doctorDashboard,
+  doctorProfile,
+  updateDoctorProfile
+}

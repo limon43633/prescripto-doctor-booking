@@ -1,19 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-
 @import "tailwindcss";
 
-
 @theme {
-    --color-primary: #5f6fff
+  --color-primary: #5f6fff;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-::-webkit-scrollbar{
-    @apply hidden
+html {
+  font-family: var(--font-sans);
 }
 
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 
-*{
-   font-family: "Outfit", sans-serif;
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  @apply hidden;
 }
 
 

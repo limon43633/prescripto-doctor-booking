@@ -45,7 +45,7 @@ const MyAppointments = () => {
           : item.cancelledBy === 'doctor'
             ? 'doctor'
             : ''
-    if (!who) return 'Appointment cancelled'
+    if (!who) return 'Cancelled'
     const dateStr = formatCancelDate(item.cancelledAt || item.updatedAt)
     return dateStr ? `Cancelled by ${who} on ${dateStr}` : `Cancelled by ${who}`
   }
@@ -92,7 +92,7 @@ const MyAppointments = () => {
   return (
     <div className='max-w-3xl mx-auto px-4 py-16'>
       <h1 className='text-2xl font-semibold text-gray-800 mb-1'>My appointments</h1>
-      <p className='text-sm text-gray-500 mb-8'>Manage your upcoming and past bookings.</p>
+      <p className='text-sm lg:text-base text-gray-500 mb-8'>Manage your upcoming and past bookings.</p>
 
       <div className='flex flex-col gap-5'>
         {appointments.length === 0 && (
@@ -113,19 +113,19 @@ const MyAppointments = () => {
 
             <div className='flex-1 flex flex-col sm:flex-row gap-4 sm:items-center'>
               <div className='flex-1 text-center sm:text-left'>
-                <p className='text-base font-semibold text-gray-800'>{item.docData.name}</p>
-                <p className='text-sm text-primary mb-3'>{item.docData.speciality}</p>
+                <p className='text-base lg:text-lg font-semibold text-gray-800'>{item.docData.name}</p>
+                <p className='text-sm lg:text-base text-primary mb-3'>{item.docData.speciality}</p>
 
                 <div className='flex items-start justify-center sm:justify-start gap-2 mb-1.5'>
-                  <MapPin size={14} className='text-gray-400 mt-0.5 shrink-0' />
-                  <p className='text-xs text-gray-500 leading-relaxed'>
+                  <MapPin size={14} className='text-gray-400 mt-0.5 shrink-0 lg:w-4 lg:h-4' />
+                  <p className='text-xs lg:text-sm text-gray-500 leading-relaxed'>
                     {item.docData.address?.line1}, {item.docData.address?.line2}
                   </p>
                 </div>
 
                 <div className='flex items-center justify-center sm:justify-start gap-2'>
-                  <Calendar size={14} className='text-gray-400 shrink-0' />
-                  <p className='text-xs text-gray-500'>
+                  <Calendar size={14} className='text-gray-400 shrink-0 lg:w-4 lg:h-4' />
+                  <p className='text-xs lg:text-sm text-gray-500'>
                     {slotDateFormat(item.slotDate)} · {item.slotTime}
                   </p>
                 </div>
@@ -143,15 +143,15 @@ const MyAppointments = () => {
                       title={getCancelledFullPhrase(item)}
                       aria-label={getCancelledFullPhrase(item)}
                     >
-                      Appointment cancelled
+                      Cancelled
                     </p>
                     {item.cancelledBy && (
                       <div className='flex flex-col items-center text-center gap-0.5 mt-1.5'>
-                        <span className='text-xs font-medium text-gray-500'>
+                        <span className='text-xs lg:text-sm font-medium text-gray-500'>
                           {getCancelledRoleText(item.cancelledBy)}
                         </span>
                         {formatCancelDate(item.cancelledAt || item.updatedAt) && (
-                          <span className='text-[11px] text-gray-400 whitespace-nowrap tabular-nums'>
+                          <span className='text-[11px] lg:text-[13px] text-gray-400 whitespace-nowrap tabular-nums'>
                             {formatCancelDate(item.cancelledAt || item.updatedAt)}
                           </span>
                         )}
@@ -160,12 +160,12 @@ const MyAppointments = () => {
                   </div>
                 ) : item.isCompleted ? (
                   <p className='w-full text-center text-sm font-medium border border-emerald-200 bg-emerald-50 text-emerald-600 py-2.5 rounded-lg select-none'>
-                    Appointment completed
+                    Completed
                   </p>
                 ) : item.payment ? (
                   <>
                     <p className='w-full text-center text-sm font-medium border border-amber-200 bg-amber-50 text-amber-600 py-2.5 rounded-lg select-none'>
-                      Appointment pending
+                      Pending
                     </p>
                     <p className='w-full text-center text-sm font-medium border border-emerald-200 bg-emerald-50 text-emerald-600 py-2.5 rounded-lg select-none'>
                       Paid
@@ -174,7 +174,7 @@ const MyAppointments = () => {
                 ) : (
                   <>
                     <p className='w-full text-center text-sm font-medium border border-amber-200 bg-amber-50 text-amber-600 py-2.5 rounded-lg select-none'>
-                      Appointment pending
+                      Pending
                     </p>
                     <div className='flex gap-2 w-full sm:flex-col'>
                       <button
